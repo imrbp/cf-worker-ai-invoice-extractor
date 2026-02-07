@@ -196,16 +196,26 @@ async function handleExtractRequest(
 			);
 		}
 
-		// Convert to array for Workers AI
 		const imageArray = Array.from(new Uint8Array(imageBuffer));
-
-		// Call Workers AI vision model
-		const aiResponse = await env.AI.run(MODEL_ID, 
-			{
+		// Convert to array for Workers AI
+		const input = {
 			image: imageArray,
 			prompt: EXTRACTION_PROMPT,
-			max_tokens: 1024,
-		});
+			max_tokens: 512,
+		};
+		
+		const aiResponse = await env.AI.run(
+			MODEL_ID,
+			input
+		);
+
+		// // Call Workers AI vision model
+		// const aiResponse = await env.AI.run(MODEL_ID, 
+		// 	{
+		// 	image: imageArray,
+		// 	prompt: EXTRACTION_PROMPT,
+		// 	max_tokens: 1024,
+		// });
 
 		// Extract and parse JSON from response
 		const extractedData = parseAIResponse(aiResponse);
