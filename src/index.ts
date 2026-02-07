@@ -9,7 +9,7 @@
 import { Env, InvoiceData, ExtractResponse } from "./types";
 
 // Vision model for invoice extraction
-const MODEL_ID = "@cf/llava-hf/llava-1.5-7b-hf";
+const MODEL_ID = "@cf/unum/uform-gen2-qwen-500m";
 
 // Maximum image size (10MB)
 const MAX_IMAGE_SIZE = 10 * 1024 * 1024;
@@ -23,7 +23,7 @@ const SUPPORTED_MIME_TYPES = [
 ];
 
 // System prompt for invoice extraction
-const EXTRACTION_PROMPT = `Extract invoice data as JSON. Use null for missing fields. Current Currency are Rupiah or IDR. Return only valid JSON:
+const EXTRACTION_PROMPT = `Extract invoice data as JSON. Use null for missing fields. Current Currency are Rupiah or IDR. Extract the date, total idr, notes, and vendor. Return only valid JSON:
 {
   "vendor_name": null,
   "date": null,
@@ -101,33 +101,8 @@ async function handleExtractRequest(
 		const contentType = request.headers.get("Content-Type") || "";
 
 		let imageBuffer: ArrayBuffer;
-
-		// Handle different input formats
-		if (contentType.includes("application/json")) {
-			// Accept base64 encoded image in JSON
-			const body = await request.json();
-			if (!body.image) {
-				return jsonResponse(
-					{
-						success: false,
-						error: 'Missing "image" field in JSON body (base64 string expected)',
-					},
-					400,
-				);
-			}
-
-			// Decode base64
-			const base64Data = body.image.replace(/^data:image\/\w+;base64,/, "");
-			const binaryString = atob(base64Data);
-			const bytes = new Uint8Array(binaryString.length);
-			for (let i = 0; i < binaryString.length; i++) {
-				bytes[i] = binaryString.charCodeAt(i);
-			}
-			imageBuffer = bytes.buffer;
-		} else if (
-			SUPPORTED_MIME_TYPES.some((type) => contentType.includes(type))
-		) {
-			// Accept raw image binary
+		
+		if (SUPPORTED_MIME_TYPES.some((type) => contentType.includes(type))) {
 			imageBuffer = await request.arrayBuffer();
 		} else {
 			return jsonResponse(
@@ -216,19 +191,11 @@ function parseAIResponse(response: any): InvoiceData {
 		// Validate that it has the expected structure
 		const invoiceData: InvoiceData = {
 			vendor_name: parsed.vendor_name || null,
-			vendor_address: parsed.vendor_address || null,
-			invoice_number: parsed.invoice_number || null,
-			invoice_date: parsed.invoice_date || null,
-			due_date: parsed.due_date || null,
-			subtotal: parsed.subtotal || null,
-			tax: parsed.tax || null,
+			date: parsed.date || null,
 			total_idr: parsed.total_idr || null,
-			line_items: parsed.line_items || null,
-			payment_terms: parsed.payment_terms || null,
 			notes: parsed.notes || null,
 		};
-
-		return invoiceData;
+ return invoiceData;
 	} catch (error) {
 		console.error("Failed to parse AI response:", error);
 		throw new Error(`Failed to parse invoice data from AI response: ${error instanceof Error ? error.message : "Unknown parsing error"}`);

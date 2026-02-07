@@ -18,14 +18,6 @@ export interface InvoiceData {
 	total_idr: string | null;
 	notes: string | null;
 }
-const EXTRACTION_PROMPT = `Extract invoice data as JSON. Use null for missing fields. Current Currency are Rupiah or IDR. Return only valid JSON:
-{
-  "vendor_name": null,
-  "date": null,
-  "total_idr": null,
-  "notes": null
-}`;
-
 
 /**
  * API response for successful extraction.
