@@ -9,7 +9,7 @@
 import { Env, InvoiceData, ExtractResponse } from "./types";
 
 // Vision model for invoice extraction
-const MODEL_ID = "@cf/unum/uform-gen2-qwen-500m";
+const MODEL_ID = "@cf/llava-hf/llava-1.5-7b-hf";
 
 // Maximum image size (10MB)
 const MAX_IMAGE_SIZE = 10 * 1024 * 1024;
