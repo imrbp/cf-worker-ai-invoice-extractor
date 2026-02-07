@@ -23,18 +23,11 @@ const SUPPORTED_MIME_TYPES = [
 ];
 
 // System prompt for invoice extraction
-const EXTRACTION_PROMPT = `Extract invoice data as JSON. Use null for missing fields. Format currency as "Rp X.XXX.XXX". Return only valid JSON:
+const EXTRACTION_PROMPT = `Extract invoice data as JSON. Use null for missing fields. Current Currency are Rupiah or IDR. Return only valid JSON:
 {
   "vendor_name": null,
-  "vendor_address": null,
-  "invoice_number": null,
-  "invoice_date": null,
-  "due_date": null,
-  "subtotal": null,
-  "tax": null,
+  "date": null,
   "total_idr": null,
-  "line_items": null,
-  "payment_terms": null,
   "notes": null
 }`;
 
@@ -168,7 +161,8 @@ async function handleExtractRequest(
 		const imageArray = Array.from(new Uint8Array(imageBuffer));
 
 		// Call Workers AI vision model
-		const aiResponse = await env.AI.run(MODEL_ID, {
+		const aiResponse = await env.AI.run(MODEL_ID, 
+			{
 			image: imageArray,
 			prompt: EXTRACTION_PROMPT,
 			max_tokens: 1024,

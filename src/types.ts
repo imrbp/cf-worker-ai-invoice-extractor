@@ -14,22 +14,18 @@ export interface Env {
  */
 export interface InvoiceData {
 	vendor_name: string | null;
-	vendor_address: string | null;
-	invoice_number: string | null;
-	invoice_date: string | null;
-	due_date: string | null;
-	subtotal: string | null;
-	tax: string | null;
+	date: string | null,
 	total_idr: string | null;
-	line_items: Array<{
-		description: string;
-		quantity: string;
-		unit_price: string;
-		amount: string;
-	}> | null;
-	payment_terms: string | null;
 	notes: string | null;
 }
+const EXTRACTION_PROMPT = `Extract invoice data as JSON. Use null for missing fields. Current Currency are Rupiah or IDR. Return only valid JSON:
+{
+  "vendor_name": null,
+  "date": null,
+  "total_idr": null,
+  "notes": null
+}`;
+
 
 /**
  * API response for successful extraction.
