@@ -23,13 +23,77 @@ const SUPPORTED_MIME_TYPES = [
 ];
 
 // System prompt for invoice extraction
-const EXTRACTION_PROMPT = `Extract invoice data as JSON. Use null for missing fields. Current Currency are Rupiah or IDR. Extract the date, total idr, notes, and vendor. Return only valid JSON:
+const EXTRACTION_PROMPT = `
+You are an information extraction AI.
+
+Your task is to analyze the provided text and extract payment-related information.
+The text may come from receipts, invoices, OCR scans, chat messages, or informal notes.
+The language may be Indonesian or mixed Indonesian-English.
+
+Extract the following fields and return them in JSON format only.
+
+FIELDS TO EXTRACT:
+
+1. vendor
+   - The name of the merchant, seller, store, company, or service provider.
+   - Common alternative terms that indicate vendor:
+     - "merchant"
+     - "toko"
+     - "penjual"
+     - "store"
+     - "company"
+     - "nama usaha"
+   - If multiple names appear, choose the most relevant one associated with the payment.
+   - If no vendor is found, return null.
+
+2. total_idr
+   - The total payment amount in Indonesian Rupiah (IDR).
+   - Common alternative terms:
+     - "nominal pembayaran"
+     - "total"
+     - "jumlah"
+     - "amount"
+     - "harga"
+     - "bayar"
+   - Remove currency symbols (Rp, IDR) and thousand separators.
+   - Return the value as a number (integer).
+   - If multiple amounts appear, choose the final or total amount paid.
+   - If no amount is found, return null.
+
+3. notes
+   - Additional context or description of the transaction.
+   - Common alternative terms:
+     - "catatan"
+     - "keterangan"
+     - "deskripsi"
+     - "remarks"
+     - "note"
+   - If no explicit notes exist, infer a short description based on the transaction content.
+   - If nothing meaningful can be inferred, return null.
+
+4. date
+   - The transaction date.
+   - Accept formats such as:
+     - DD-MM-YYYY
+     - YYYY-MM-DD
+     - DD/MM/YYYY
+     - Textual dates (e.g., "12 Januari 2024")
+   - Convert the date to ISO 8601 format: YYYY-MM-DD.
+   - If multiple dates appear, choose the transaction or payment date.
+   - If no date is found, return null.
+
+OUTPUT RULES:
+- Return ONLY valid JSON.
+- Do NOT include explanations, comments, or extra text.
+- Use this exact JSON structure:
+
 {
-  "vendor_name": null,
-  "date": null,
-  "total_idr": null,
-  "notes": null
-}`;
+  "vendor": string | null,
+  "total_idr": number | null,
+  "notes": string | null,
+  "date": string | null
+}
+`;
 
 export default {
 	/**
